@@ -14,7 +14,7 @@ public class Bullet : MonoBehaviour {
 	// Update is called once per frame
 	void FixedUpdate () {
         rb.MovePosition((Vector2)transform.position + Geo.ToVect(transform.eulerAngles.z) * spd);
-    }
+	}
 
     private void OnCollisionEnter2D(Collision2D coll) {
         coll.gameObject.SendMessage("OnShot", null, SendMessageOptions.DontRequireReceiver);

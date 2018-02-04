@@ -52,32 +52,40 @@ public class BasicEnemy : MonoBehaviour {
 
     public virtual void isVisible()
     {
-        if (Vector2.Distance(target.transform.position, transform.position) <= minDist)
-        {
-            targetVisible = true;
-        }
-        else
-        {
-            targetVisible = false;
+        if (target != null) { 
+            if (Vector2.Distance(target.transform.position, transform.position) <= minDist)
+            {
+                targetVisible = true;
+            }
+            else
+            {
+                targetVisible = false;
+            }
         }
     }
 
     public virtual void FaceTarget()
     {
-        Vector2 dir = (target.position - transform.position).normalized;
-        if((Vector2)transform.up != dir)
+        if (target != null)
         {
-            float ang = Geo.ToAng(dir);
-            transform.eulerAngles = new Vector3(0,0,ang - 90);
+            Vector2 dir = (target.position - transform.position).normalized;
+            if ((Vector2)transform.up != dir)
+            {
+                float ang = Geo.ToAng(dir);
+                transform.eulerAngles = new Vector3(0, 0, ang - 90);
+            }
         }
     }
 
     public virtual void Shoot()
     {
-        if (currentCooldownFrame <= 0)
+        if (target != null)
         {
-            Instantiate(bullet, transform.position + (transform.up * .2f), Quaternion.Euler(0, 0, transform.eulerAngles.z + 90f));
-            currentCooldownFrame = cooldown;
+            if (currentCooldownFrame <= 0)
+            {
+                Instantiate(bullet, transform.position + (transform.up * .2f), Quaternion.Euler(0, 0, transform.eulerAngles.z + 90f));
+                currentCooldownFrame = cooldown;
+            }
         }
     }
 

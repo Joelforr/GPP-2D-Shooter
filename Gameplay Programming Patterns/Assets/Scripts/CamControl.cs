@@ -19,16 +19,18 @@ public class CamControl : MonoBehaviour {
 
     // Update is called once per frame
     void FixedUpdate () {
-
-
-        if (target.position.x > transform.position.x + offset || target.position.x < transform.position.x - offset)
+        if (target != null)
         {
-            transform.position = Vector3.SmoothDamp(transform.position, new Vector3(target.position.x, transform.position.y, transform.position.z), ref velocity, smoothTime);
-        }
 
-        if (target.position.y > transform.position.y + offset || target.position.y < transform.position.y - offset)
-        {
-            transform.position = Vector3.SmoothDamp(transform.position, new Vector3(transform.position.x, target.position.y, transform.position.z), ref velocity, smoothTime);
+            if (target.position.x > transform.position.x + offset || target.position.x < transform.position.x - offset)
+            {
+                transform.position = Vector3.SmoothDamp(transform.position, new Vector3(target.position.x, transform.position.y, transform.position.z), ref velocity, smoothTime);
+            }
+
+            if (target.position.y > transform.position.y + offset || target.position.y < transform.position.y - offset)
+            {
+                transform.position = Vector3.SmoothDamp(transform.position, new Vector3(transform.position.x, target.position.y, transform.position.z), ref velocity, smoothTime);
+            }
         }
     }
 
