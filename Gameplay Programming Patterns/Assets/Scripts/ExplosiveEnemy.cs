@@ -15,13 +15,9 @@ public class ExplosiveEnemy : BasicEnemy {
 	// Update is called once per frame
 	void FixedUpdate () {
 
-   
-
-        if (targetVisible)
+        if (isTargetVisible())
         {
-            //FaceTarget();
             Move();
-
         }
 
         if (currentCooldownFrame > 0)
@@ -32,14 +28,16 @@ public class ExplosiveEnemy : BasicEnemy {
 
     public override void Move()
     {
-        Vector2 dir = (target.position - transform.position).normalized;
-        float crossZ = Vector3.Cross(dir, transform.up).z;
+        if (target != null)
+        {
+            Vector2 dir = GetDirection();
+            float crossZ = Vector3.Cross(dir, transform.up).z;
 
-        vel = (Vector2)transform.up * thrust;
+            vel = (Vector2)transform.up * thrust;
 
-        rb.MoveRotation((transform.eulerAngles.z+90) + rotateSpeed * crossZ);
-        rb.MovePosition((Vector2)transform.position + vel);
-    
+            rb.MoveRotation((transform.eulerAngles.z + 90) + rotateSpeed * crossZ);
+            rb.MovePosition((Vector2)transform.position + vel);
+        }
     }
 
     public override void Shoot()
@@ -50,8 +48,7 @@ public class ExplosiveEnemy : BasicEnemy {
     private void OnCollisionEnter2D(Collision2D coll)
     {
         coll.gameObject.SendMessage("OnShot", null, SendMessageOptions.DontRequireReceiver);
-        Instantiate(deathPart, transform.position, transform.rotation);
-        Destroy(gameObject);
+        manager.QueueDestruction(this);
     }
 
 }

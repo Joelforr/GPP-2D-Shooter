@@ -14,9 +14,8 @@ public class WaveEnemy : BasicEnemy {
 	
 	// Update is called once per frame
 	void FixedUpdate () {
-        if (targetVisible)
+        if (isTargetVisible())
         {
-            //FaceTarget();
             Shoot();
             Move();
         }
@@ -35,7 +34,6 @@ public class WaveEnemy : BasicEnemy {
     private void OnCollisionEnter2D(Collision2D coll)
     {
         coll.gameObject.SendMessage("OnShot", null, SendMessageOptions.DontRequireReceiver);
-        Instantiate(deathPart, transform.position, transform.rotation);
-        Destroy(gameObject);
+        manager.QueueDestruction(this);
     }
 }
