@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using UnityEngine.UI;
+using GC;
 
 public class EnemyManager : MonoBehaviour {
 
@@ -20,20 +22,38 @@ public class EnemyManager : MonoBehaviour {
 
     private Dictionary<int, List<GameObject>> wave_directory;
 
+    private Text waveText;
+
 	// Use this for initialization
 	void Start () {
+        EventManager.Instance.AddHandler<WaveClearEvent>(OnWaveCleared); 
         InitList();
         player = GameObject.Find("Ship");
         wave_id = 1;
         InitWave();
 	}
+
+    void OnWaveCleared(GameEvent e)
+    {
+        var _waveClearedEvent = e as WaveClearEvent;
+        waveText = GameObject.Find("WaveTracker").GetComponent<Text>();
+        waveText.text = "Wave: " + _waveClearedEvent.waveNumber;
+        
+    }
 	
 	// Update is called once per frame
 	void Update () {
+        if (Input.GetKeyDown(KeyCode.J))
+        {
+            EventManager.Instance.Fire(new WaveClearEvent(2));
+        }
 		if(active_enemies.Count == 0)
         {
             wave_id++;
+            EventManager.Instance.Fire(new WaveClearEvent(wave_id));
+            EventManager.Instance.RemoveHandler<WaveClearEvent>(OnWaveCleared);
             InitWave();
+            EventManager.Instance.AddHandler<WaveClearEvent>(OnWaveCleared);
         }
 
         DestructionCleaning();
