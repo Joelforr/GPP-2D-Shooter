@@ -24,40 +24,58 @@ public class EnemyManager : MonoBehaviour {
 
     private Text waveText;
 
+    public AudioSource source;
+    public AudioClip clearClip;
+
+    private TaskManager tm = new TaskManager();
+
 	// Use this for initialization
 	void Start () {
-        EventManager.Instance.AddHandler<WaveClearEvent>(OnWaveCleared); 
+        EventManager.Instance.AddHandler<WaveClearEvent>(OnWaveCleared);
+        waveText = GameObject.Find("WaveTracker").GetComponent<Text>();
         InitList();
         player = GameObject.Find("Ship");
         wave_id = 1;
-        InitWave();
+        InitNewWave();
 	}
 
-    void OnWaveCleared(GameEvent e)
+    void OnWaveCleared(WaveClearEvent e)
     {
-        var _waveClearedEvent = e as WaveClearEvent;
-        waveText = GameObject.Find("WaveTracker").GetComponent<Text>();
-        waveText.text = "Wave: " + _waveClearedEvent.waveNumber;
+       
+        waveText.text = "Wave: " + e.waveNumber;
         
     }
 	
 	// Update is called once per frame
 	void Update () {
-        if (Input.GetKeyDown(KeyCode.J))
+
+        if (Input.GetKeyDown(KeyCode.R)) //if you restart clear handler
         {
-            EventManager.Instance.Fire(new WaveClearEvent(2));
-        }
-		if(active_enemies.Count == 0)
-        {
-            wave_id++;
-            EventManager.Instance.Fire(new WaveClearEvent(wave_id));
             EventManager.Instance.RemoveHandler<WaveClearEvent>(OnWaveCleared);
-            InitWave();
-            EventManager.Instance.AddHandler<WaveClearEvent>(OnWaveCleared);
         }
+
+        if (active_enemies.Count == 0)
+        {
+            DoNewWave();
+            EventManager.Instance.Fire(new WaveClearEvent(wave_id));
+
+        }
+
+        tm.Update();
 
         DestructionCleaning();
 	}
+
+    private void IncrementID()
+    {
+        wave_id++;
+    }
+
+    private void DoNewWave()
+    {
+        tm.Do(new ActionTask(IncrementID))
+            .Then(new ActionTask(InitNewWave));
+    }
 
     private void InitList()
     {
@@ -65,8 +83,9 @@ public class EnemyManager : MonoBehaviour {
         destroy_queue = new List<BasicEnemy>();
     }
 
-    private void InitWave()
+    private void InitNewWave()
     {
+        Debug.Log(wave_id);
         switch (wave_id)
         {
             case 1:
