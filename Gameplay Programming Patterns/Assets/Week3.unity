@@ -1331,11 +1331,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7da1ec87d989f814f95b0b3f8b54ffdb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  active_enemies: []
   basic_E_prefab: {fileID: 1554381143129590, guid: 40754c56ff085854b8b50d7f5caeac17,
     type: 2}
   explosive_E_prefab: {fileID: 1834987927732256, guid: 8b2370b6a2ff2e34382cb64edea682be,
     type: 2}
   wave_E_prefab: {fileID: 1207757182168520, guid: 7d261e2775b00c54dab799dd6b3c2935,
+    type: 2}
+  boss_E_prefab: {fileID: 1468629442418228, guid: ba332ab09001a3347943494c81aadaf3,
     type: 2}
   source: {fileID: 1288072060}
   clearClip: {fileID: 8300000, guid: c9798975421039d44a99ea2d9a140d6e, type: 3}

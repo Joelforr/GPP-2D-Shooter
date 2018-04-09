@@ -110,7 +110,7 @@ public class PlayAudioTask : AudioTask
 
     internal override void Update()
     {
-        Debug.Log("UPdate");
+        Debug.Log("Update");
         if(!audioSource.isPlaying)
         {
            
@@ -184,7 +184,6 @@ public class Move : TimedGOTask
     }
 }
 
-
 // A task to lerp a gameobject's scale
 public class Scale : TimedGOTask
 {
@@ -200,6 +199,23 @@ public class Scale : TimedGOTask
     protected override void OnTick(float t)
     {
         gameObject.transform.localScale = Vector3.Lerp(Start, End, t);
+    }
+}
+
+public class Rotate : TimedGOTask
+{
+    public Vector3 Start { get; private set; }
+    public Vector3 End { get; private set; }
+
+    public Rotate(GameObject gameObject, Vector3 start, Vector3 end, float duration) : base(gameObject, duration)
+    {
+        Start = start;
+        End = end;
+    }
+
+    protected override void OnTick(float t)
+    {
+        gameObject.transform.eulerAngles = Vector3.Lerp(Start, End, t);
     }
 }
 

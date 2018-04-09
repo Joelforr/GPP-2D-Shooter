@@ -8,7 +8,7 @@ using GC;
 public class EnemyManager : MonoBehaviour {
 
     private int wave_id;
-    private List<BasicEnemy> active_enemies;
+    public List<BasicEnemy> active_enemies;
     private List<BasicEnemy> destroy_queue;
 
     [SerializeField]
@@ -17,6 +17,8 @@ public class EnemyManager : MonoBehaviour {
     private GameObject explosive_E_prefab;
     [SerializeField]
     private GameObject wave_E_prefab;
+    [SerializeField]
+    private GameObject boss_E_prefab;
 
     private GameObject player;
 
@@ -73,8 +75,8 @@ public class EnemyManager : MonoBehaviour {
 
     private void DoNewWave()
     {
-        tm.Do(new ActionTask(IncrementID))
-            .Then(new ActionTask(InitNewWave));
+        IncrementID();
+        InitNewWave();
     }
 
     private void InitList()
@@ -89,9 +91,10 @@ public class EnemyManager : MonoBehaviour {
         switch (wave_id)
         {
             case 1:
-                SpawnEnemyPrefab(basic_E_prefab);
-                SpawnEnemyPrefab(basic_E_prefab);
-                SpawnEnemyPrefab(basic_E_prefab);
+                SpawnBossEnemy(boss_E_prefab);
+                //SpawnEnemyPrefab(basic_E_prefab);
+                //SpawnEnemyPrefab(basic_E_prefab);
+                //SpawnEnemyPrefab(basic_E_prefab);
                 break;
 
             case 2:
@@ -139,6 +142,34 @@ public class EnemyManager : MonoBehaviour {
     {
         Vector2 spawn_pos = RandomSpawnLocation(new Vector2(6f,6f));
         GameObject enemy_ship = Instantiate(enemy, (Vector3)spawn_pos, Quaternion.identity);
+        enemy_ship.GetComponent<BasicEnemy>().SetManager(this);
+        active_enemies.Add(enemy_ship.GetComponent<BasicEnemy>());
+    }
+
+    public void SpawnBossEnemy(GameObject boss)
+    {
+        Vector2 spawn_pos = new Vector2(1.5f, 6f);
+        GameObject enemy_ship = Instantiate(boss, (Vector3)spawn_pos, Quaternion.identity);
+        enemy_ship.GetComponent<BasicEnemy>().SetManager(this);
+        active_enemies.Add(enemy_ship.GetComponent<BasicEnemy>());
+    }
+    
+    public void SubSpawnCall()
+    {
+        if (active_enemies.Count > 1) {
+            return;
+        }
+
+        tm.Do(new ActionTask(SpawnSubEnemy))
+            .Then(new Wait(2f))
+            .Then(new ActionTask(SpawnSubEnemy))
+            .Then(new Wait(3f));
+    }
+
+    public void SpawnSubEnemy()
+    {
+        Vector2 spawn_pos = RandomSpawnLocation(new Vector2(6f, 6f));
+        GameObject enemy_ship = Instantiate(basic_E_prefab, (Vector3)spawn_pos, Quaternion.identity);
         enemy_ship.GetComponent<BasicEnemy>().SetManager(this);
         active_enemies.Add(enemy_ship.GetComponent<BasicEnemy>());
     }
