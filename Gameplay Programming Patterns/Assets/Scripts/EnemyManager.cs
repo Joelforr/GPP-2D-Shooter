@@ -127,6 +127,10 @@ public class EnemyManager : MonoBehaviour {
                 SpawnEnemyPrefab(basic_E_prefab);
                 break;
 
+            case 6:
+                SpawnBossEnemy(boss_E_prefab);
+                break;
+
             default:
                 SpawnEnemyPrefab(explosive_E_prefab);
                 SpawnEnemyPrefab(explosive_E_prefab);

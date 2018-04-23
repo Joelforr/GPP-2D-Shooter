@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 
 using UnityEngine;
+using BehaviorTree;
 
 public class BasicEnemy : MonoBehaviour {
+
 
     public Transform target;
     public GameObject bullet;
@@ -19,26 +21,42 @@ public class BasicEnemy : MonoBehaviour {
     public Vector2 vel;
     public float thrust;
 
+    private Tree<BasicEnemy> _tree;
     protected EnemyManager manager;
 
     // Use this for initialization
     void Start () {
         target = GameObject.Find("Ship").GetComponent<Transform>();
         rb = GetComponent<Rigidbody2D>();
+
+        _tree = new Tree<BasicEnemy>(new Selector<BasicEnemy>(
+
+            //Attack
+            new Sequence<BasicEnemy>(
+                new IsPlayerInRange(),
+                new IsOffCooldown(),
+                new FaceTargetEnemy(),
+                new Fire()
+                ),
+
+            new Sequence<BasicEnemy>(
+                new IsPlayerInRange(),
+                new FaceTargetEnemy(),
+                new MoveTowardEnemy()
+                )
+
+
+            )
+        );
     }
 	
 	// Update is called once per frame
 	void Update () {
+        _tree.Update(this);
     }
 
     private void FixedUpdate()
     {
-        if (isTargetVisible())
-        {
-            FaceTarget();
-            Move();
-            Shoot();
-        }
 
         if(currentCooldownFrame > 0)
         {
@@ -101,5 +119,71 @@ public class BasicEnemy : MonoBehaviour {
     {
         Instantiate(deathPart, transform.position, transform.rotation);
         Destroy(this.gameObject);
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // NODES
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////
+    // Conditions
+    ////////////////////
+
+
+    private class IsPlayerInRange : Node<BasicEnemy>
+    {
+        public override bool Update(BasicEnemy enemy)
+        {
+            var playerPos = enemy.target.position;
+            var enemyPos = enemy.transform.position;
+            return Vector3.Distance(playerPos, enemyPos) < enemy.minDist;
+        }
+    }
+
+    private class IsOffCooldown : Node<BasicEnemy>
+    {
+        public override bool Update(BasicEnemy enemy)
+        {
+            return enemy.currentCooldownFrame <= 0;
+        }
+    }
+
+    ///////////////////
+    /// Actions
+    ///////////////////
+    private class FaceTargetEnemy : Node<BasicEnemy>
+    {
+        public override bool Update(BasicEnemy enemy)
+        {
+
+            Vector2 dir = enemy.GetDirection();
+
+                float ang = Geo.ToAng(dir);
+                enemy.transform.eulerAngles = new Vector3(0, 0, ang - 90);
+                return (Vector2)enemy.transform.up == dir;
+        }
+    }
+
+    private class Fire : Node<BasicEnemy>
+    {
+        public override bool Update(BasicEnemy enemy)
+        {
+
+            Instantiate(enemy.bullet, enemy.transform.position + (enemy.transform.up * .2f), Quaternion.Euler(0, 0, enemy.transform.eulerAngles.z + 90f));
+            enemy.currentCooldownFrame = enemy.cooldown;
+            return true;
+        }
+    }
+
+
+    private class MoveTowardEnemy : Node<BasicEnemy>
+    {
+        public override bool Update(BasicEnemy enemy)
+        {
+
+            enemy.vel = (Vector2)enemy.transform.up * enemy.thrust;
+            enemy.rb.MovePosition((Vector2)enemy.transform.position + enemy.vel);
+            return true;
+        }
     }
 }
